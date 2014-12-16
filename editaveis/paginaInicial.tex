@@ -3,6 +3,7 @@
 
 
 \section{Menu superior}
+\label{menuSuperior}
 \begin{figure}[h]
      \centering
        \includegraphics[keepaspectratio=true,scale=0.49]{figuras/menu_superior}
@@ -153,3 +154,40 @@ O endereço do item/subitem tem o seguinte padrão
 \section{Destacando artigo}
 
 \section{Rodapé}
+
+\begin{lstlisting}
+$ /usr/share/noosfero
+\end{lstlisting}
+
+Assim como o menu superior na seção \ref{menuSuperior}, o rodapé da página também deve ser alterado no arquivo de código fonte. Para isso acesse o arquivo \textbf{\textit{noosfero/public/designs/themes/portalCpd/footer.html.erb}}
+
+A figura abaixo mostra como está a estrutura do rodapé da página.
+\begin{figure}[h]
+     \centering
+       \includegraphics[keepaspectratio=true,scale=0.49]{figuras/footer.eps}
+     \caption{Rodapé da página.}
+\end{figure}
+
+Percebe-se que há um conjunto de \emph{links} que possibilitam o acesso rápido às informações (Página Inicial, Sobre, Contato), para realizar o acréscimo ou alteração de alguma informação o procedimento é semelhante ao menu superior basicamente o código utilizado é:
+
+\begin{lstlisting}
+<li><%= link_to '< Menu a ser adicionado >',  "< Link de acesso >" %></li>
+\end{lstlisting}
+
+Quando definido tais parâmetros eles devem ser adicionados ao código no arquivo \emph{footer.html.erb} e ficará conforme a figura \ref{fig:codMenu}:
+
+\begin{figure}[h]
+     \centering
+       \includegraphics[keepaspectratio=true,scale=0.49]{figuras/footerMenu.eps}
+     \caption{Código do menu da página.}
+     \label{fig:codMenu}
+\end{figure}
+
+Para adicionar informações gerais referentes ao portal deve ser alterado o conteúdo dentro da \emph{<div id='license-on-footer'>}, segue abaixo a figura \ref{fig:infGeral} que contém todas as informações referentes ao portal do CPD.
+
+\begin{figure}[h]
+     \centering
+       \includegraphics[keepaspectratio=true,scale=0.49]{figuras/informacoesGeraisRodape.eps}
+     \caption{Informações gerais.}
+     \label{fig:infGeral}
+\end{figure}
