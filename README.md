@@ -91,9 +91,10 @@ Informações para instalar o abnTeX2 no Mac OS X:
 
 https://code.google.com/p/abntex2/wiki/InstalacaoMac
 
-## Compilando
+É necessário instalar algumas dependências (python), execute o comando abaixo para isso:
+
+	$ make configure
 
 Para compilar o texto através do Makefile digite:
 
-	$ make clean
 	$ make

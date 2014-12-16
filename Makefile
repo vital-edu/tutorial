@@ -1,9 +1,10 @@
 TARGET = TutorialNoosfero.pdf
 
 BIBTEX = bibtex
-LATEX = latex
+LATEX = latex -shell-escape
 DVIPS = dvips
-PS2PDF = ps2pdf
+PS2PDF = ps2pdf -dAutoFilterColorImages=false -dColorImageFilter=/FlateEncode
+-dPDFsettings=/prepress
 
 VERSION = 0.1.0
 
@@ -51,3 +52,7 @@ dist: clean
 
 dist-clean: clean
 	rm -f $(PDF_FILE) $(TARGET)
+
+configure:
+	sudo apt-get install python
+	sudo easy_install Pygments
