@@ -13,8 +13,140 @@ O menu superior é um dos poucos conteúdos no Noosfero que deve ser alterado
 diretamente pelo arquivo fonte. No entanto, não é uma tarefa árdua, muito pelo
 contrário.
 
-Acessando o arquivo \textbf{\textit{noosfero/public/designs/themes/portalCpd/footer.html.erb}},
-deverá ser editado a \textit{div} 
+\subsection{Entendendo a estrutura do menu}
+
+Acessando o arquivo \emph{\textbf{noosfero/public/designs/themes/portalCpd/header.html.erb}},
+deverá ser editado a seção \emph {\textbf{menu-top}}.
+
+\begin{figure}[h]
+     \centering
+       \includegraphics[scale=0.5]{figuras/menu-top}
+     \caption{Arquivo de Configuração do Menu Superior}
+\end{figure}
+
+Repare na \emph{Figura 2}, que as linhas mais próximas da borda esquerdo da imagem, são os \emph{itens do menu}, e as linhas mais distantes da borda esquerda são os sub-itens do menu.
+
+Para ficar mais claro, as linhas 18, 19, 27, 28, 34, 41, 48, 59, e 67 são itens do menus, e as linhas 21, 22, 23, 24, 30, 31, 36, 37, 38, 43, 44, 45, 50, 51, 52, 53, 54, 55, 56, 61, 62, 63, 65 são sub-itens do menu.
+
+Os itens e sub-itens do menu possuem a mesma estrutura:
+
+\begin{minted}[
+  frame=single
+]{erb}
+<%= link_to 'Nome do item/subitem', "/endereco-da-pagina" %>
+\end{minted}
+
+\subsection{Adicionando um item a estrutura do menu}
+
+O menu superior tem uma estrutura básica, mostrada no Exemplo 1:
+
+\begin{minted}[
+  frame=single,
+  label=Exemplo 1
+]{erb}
+<li><%= link_to 'Item 1 (com sub-itens)', "/endereco" %><\li>
+  <ul>
+    <li><%= link_to 'Subitem 1', "/endereco-da-pagina" %><\li>
+    <li><%= link_to 'Subitem 2', "/endereco-da-pagina" %><\li>
+  </ul>
+<li><%= link_to 'Item 2 (sem subitem)', "/endereco-da-pagina" %><\li>
+\end{minted}
+
+Caso deseje acrescentar um item ao menu do Exemplo 1, basta adicionar:
+
+\begin{minted}[
+  frame=single
+]{erb}
+<li><%= link_to 'Novo Item', "/endereco-da-pagina" %></li>
+\end{minted}
+
+O arquivo ficará:
+
+\begin{minted}[
+  frame=single,
+  label=Exemplo 2
+]{erb}
+<li><%= link_to 'Item 1 (com sub-itens)', "/endereco" %><\li>
+  <ul>
+    <li><%= link_to 'Subitem 1', "/endereco-da-pagina" %><\li>
+    <li><%= link_to 'Subitem 2', "/endereco-da-pagina" %><\li>
+  </ul>
+<li><%= link_to 'Item 2 (sem subitem)', "/endereco-da-pagina" %><\li>
+<li><%= link_to 'Novo Item', "/endereco-da-pagina" %></li>
+\end{minted}
+
+\subsection{Adicionando um subitem}
+
+A adição de um subitem é um pouco mais complicada. Caso se deseje acrescentar um subitem a um item do menu que já passua um subitem, como é o caso do Item 1 do Exemplo 2, basta adicionar, de forma análoga a adição de um item, a seguinte linha:
+
+\begin{minted}[
+  frame=single
+]{erb}
+    <li><%= link_to 'Novo subitem 3', "/endereco-da-pagina" %></li>
+\end{minted}
+
+Ficará assim:
+
+\begin{minted}[
+  frame=single,
+  label=Exemplo 3
+]{erb}
+<li><%= link_to 'Item 1 (com sub-itens)', "/endereco" %><\li>
+  <ul>
+    <li><%= link_to 'Subitem 1', "/endereco-da-pagina" %><\li>
+    <li><%= link_to 'Subitem 2', "/endereco-da-pagina" %><\li>
+    <li><%= link_to 'Novo subitem 3', "/endereco-da-pagina" %></li>
+  </ul>
+<li><%= link_to 'Item 2 (sem subitem)', "/endereco-da-pagina" %><\li>
+<li><%= link_to 'Novo Item', "/endereco-da-pagina" %></li>
+\end{minted}
+
+Para adicionar um subitem a um menu que não possui sub-itens, como é o caso do Item 2 do Exemplo 3, deverá ser adicionado a seguinte estrutura:
+
+\begin{minted}[
+  frame=single,
+]{erb}
+  <ul>
+    <li><%= link_to 'Novo subitem 4', "/endereco-da-pagina" %><\li>
+  </ul>
+\end{minted}
+
+Ficará assim:
+
+\begin{minted}[
+  frame=single,
+  label=Exemplo 4
+]{erb}
+<li><%= link_to 'Item 1 (com sub-itens)', "/endereco" %><\li>
+  <ul>
+    <li><%= link_to 'Subitem 1', "/endereco-da-pagina" %><\li>
+    <li><%= link_to 'Subitem 2', "/endereco-da-pagina" %><\li>
+    <li><%= link_to 'Novo subitem 3', "/endereco-da-pagina" %></li>
+  </ul>
+<li><%= link_to 'Item 2 (sem subitem)', "/endereco-da-pagina" %><\li>
+  <ul>
+    <li><%= link_to 'Novo subitem 4', "/endereco-da-pagina" %></li>
+  </ul>
+</li>
+<li><%= link_to 'Novo Item', "/endereco-da-pagina" %></li>
+\end{minted}
+
+\subsection{Sobre o endereço do item/subitem}
+
+O endereço do item/subitem tem o seguinte padrão
+
+\begin{table}[h]
+\begin{tabular}{|l|l|}
+  \hline
+  \multicolumn{1}{|c|}{\textbf{Endereço}} & \multicolumn{1}{c|}{\textbf{Destino}} \\
+  \hline
+  \textbackslash & Página Inicial \\
+  \textbackslash nome-comunidade & Comunidade \\
+  \textbackslash nome-comunidade\textbackslash nome-conteudo & Conteúdo dentro de uma comunidade \\
+  \hline
+\end{tabular}
+\caption {Padrão de Endereços}
+\end{table}
 
 \section{Menu lateral}
 
