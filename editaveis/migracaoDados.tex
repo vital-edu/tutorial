@@ -1,0 +1,104 @@
+\lstdefinestyle{base}{
+  moredelim=**[is][\color{blue}]{|}{|},
+}
+
+\chapter{Migração de dados}
+\begin{enumerate}
+\item Pare o serviço do noosfero
+\begin{lstlisting}
+$ sudo service noosfero stop
+\end{lstlisting}
+\item Crie uma pasta para o backup  do banco de dados
+\begin{lstlisting}[style=base]
+$ mkdir -p |<nome da pasta de backup>|
+\end{lstlisting}
+\item Dê permissão total a todos os usuários para a pasta 
+\begin{lstlisting}[style=base]
+$ sudo chmod 777 |<nome da pasta de backup>|
+\end{lstlisting}
+\item Realize o backup do banco de dados
+\begin{lstlisting}[style=base]
+$ sudo -u postgres pg_dump |noosfero_database| > noosfero_bkp.sql
+\end{lstlisting}
+
+\textcolor{red}{{\scriptsize Obs: substitua  “noosfero\_database” pelo nome do banco de dados que se deseja realizar o backuop. Por padrão, o noosfero utiliza: }}
+
+\textcolor{red}{{\scriptsize \textbf{noosfero\_test} para o ambiente de produção}}
+
+\textcolor{red}{{\scriptsize \textbf{noosfero\_development} para o ambiente de desenvolvimento }}
+
+\textcolor{red}{{\scriptsize \textbf{noosfero\_production} para o ambiente de produção.}}
+
+\item Entre na página de backup criada no passo 2
+\begin{lstlisting}[style=base]
+$ cd |<nome da pasta de backup>|
+\end{lstlisting}
+
+\item Compacte o arquivo sql com o gzip
+\begin{lstlisting}
+$ gzip noosfero_bkp.sql
+\end{lstlisting}
+
+\item Realize o backup dos dados/arquivos do noosfero
+\begin{lstlisting}
+$ tar zcvf noosfero-data.tgz /var/lib/noosfero-data/
+\end{lstlisting}
+
+\item Envie os backups para a nova VM
+\begin{lstlisting}[style=base]
+$ scp -P22 noosfero-data.tgz noosfero_bkp.sql.gz |usuario|@|IP_de_destino|
+\end{lstlisting}
+
+\textcolor{red}{{\scriptsize Obs: não esqueça de substituir corretamente o usuário e o ip de destino corretamente.}}
+
+\item Pare o serviço da nova VM, caso esteja em execução
+\begin{lstlisting}
+$ sudo service noosfero stop
+\end{lstlisting}
+
+\item Descompacte o “noosfero-data.tgz”
+\begin{lstlisting}
+$ tar -xzf noosfero-data.tgz -C /
+\end{lstlisting}
+
+\item Altere o dono na pasta
+\begin{lstlisting}[style=base]
+$ sudo chown -R |noosfero|. /var/lib/noosfero-data
+\end{lstlisting}
+
+\textcolor{red}{{\scriptsize Obs: altere “noosfero” caso o usuário do banco de dados da nova VM seja outro. }}
+
+\item Descompacte o arquivo “noosfero\_bkp.sql.gz”
+\begin{lstlisting}
+$ gunzip noosfero_bkp.sql.gz
+\end{lstlisting}
+
+\item Derrube o database atual
+\begin{lstlisting}
+$ sudo -u postgres psql -c "DROP DATABASE noosfero_database"
+\end{lstlisting}
+
+\textcolor{red}{{\scriptsize  Obs: substitua  “noosfero\_database” pelo nome do banco de dados que se deseja derrubar. Por padrão, o noosfero utiliza: }}
+
+\textcolor{red}{{\scriptsize	\textbf{noosfero\_test} para o ambiente de produção}}
+
+\textcolor{red}{{\scriptsize	\textbf{noosfero\_development} para o ambiente de desenvolvimento}}
+
+\textcolor{red}{{\scriptsize 	\textbf{noosfero\_production} para o ambiente de produção. }}
+
+\item Crie o novo database
+\begin{lstlisting}[style=base]
+$ sudo -u postgres psql -c "CREATE DATABASE noosfero_database WITH OWNER = |noosfero|"
+\end{lstlisting}
+
+\textcolor{red}{{\scriptsize Obs: substitua  “noosfero\_database” pelo nome do banco de dados que se deseja criar. Por padrão, o noosfero utiliza:}}
+
+\textcolor{red}{{\scriptsize	\textbf{noosfero\_test} para o ambiente de produção}}
+
+\textcolor{red}{{\scriptsize	\textbf{noosfero\_development} para o ambiente de desenvolvimento}}
+
+\textcolor{red}{{\scriptsize	\textbf{noosfero\_production} para o ambiente de produção.}}
+
+\textcolor{red}{{\scriptsize Altere também "noosfero"  caso o usuário do banco de dados deva ser outro. }}
+
+\end{enumerate}
