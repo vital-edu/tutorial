@@ -1,4 +1,9 @@
 \lstset{language=sh, numbers=none, breaklines=true}
+
+\lstdefinestyle{base}{
+  moredelim=**[is][\color{blue}]{|}{|},
+}
+
 \chapter{Instalação e configuração do Noosfero }
 
 O Vim é o editor de texto padrão que será utilizado nesse tutorial sempre que for necessário editar um arquivo. Caso deseje utilizar um outro editor de texto, substitua “vim” nos comandos desse tutorial pelo comando do editor de texto de sua preferência.
@@ -66,8 +71,8 @@ $ sudo vim /etc/postfiz/main.cf
 \end{lstlisting}
 
 \item Procure a linha 'mydestination' e adicione o domínio do site a ser hospedado
-\begin{lstlisting}
-mydestination = <exemplo-dominio.com.br>
+\begin{lstlisting}[style=base]
+mydestination = |<exemplo-dominio.com.br>|
 \end{lstlisting}
 
 \textcolor{red}{{\scriptsize  Obs: Subtitua <exemplo-dominio.com.br> removendo <> }}
@@ -106,8 +111,8 @@ $ sudo vim /etc/postfix/sasl/sasl_passwd
 \end{lstlisting}
 
 \item Adicione email e senha no arquivo
-\begin{lstlisting}
-	[smtp.gmail.com]:587 <email da instituicao>:<senha de acesso ao email>
+\begin{lstlisting}[style=base]
+	[smtp.gmail.com]:587 |<email da instituicao>|:|<senha de acesso ao email>|
 \end{lstlisting}
 \textcolor{red}{{\scriptsize Obs: substitua <email da instituição> e <senha de acesso ao email> removendo os: <> }}
 
@@ -129,8 +134,8 @@ $ sudo vim /etc/postfix/virtual
 \end{lstlisting}
 
 \item Ao final do arquivo adicione as seguintes linhas de configuração
-\begin{lstlisting}
-@<dominio da maquina>		<email da organizacao>
+\begin{lstlisting}[style=base]
+@|<dominio da maquina>|		|<email da organizacao>|
 \end{lstlisting}
 \textcolor{red}{{\scriptsize Obs: substitua <domínio da máquina> e <email da organização> removendo os: <> }}
 
@@ -149,4 +154,252 @@ $ sudo postmap /etc/postfix/virtual
 $ sudo service postfix restart
 \end{lstlisting}
 
+\end{enumerate}
+
+\section{Configuração do backup do banco de dados}
+
+\begin{enumerate}[label=\alph*)]
+
+\item Abra arquivo “noosfero-backup.sh” com editor de texto Vim
+\begin{lstlisting}
+$ sudo vim /usr/bin/noosfero-backup.sh
+\end{lstlisting}
+
+\item Adicione as linhas seguintes para criação do script
+\begin{lstlisting}[style=base]
+#!/bin/bash
+BKP_DIR=|<Local do Backup>|
+date=$(date +backup_%Y_%m_%d_%H_%M)
+mkdir $BKP_DIR/$date
+chmod 777 $BKP_DIR
+
+echo "Data do backup: " $(date +%Y/%m/%d-%H:%M)
+
+cd $BKP_DIR
+
+#Backup dos arquivos
+tar zcvPf $BKP_DIR/$date/noosfero-
+tar zcvPf $BKP_DIR/$date/noosfero-data.
+tar zcvPf $BKP_DIR/$date/noosfero-etc.
+sudo -u postgres pg_dump noosfero > $BKP_DIR/$date/noosfero_
+
+scp -P21 -r $BKP_DIR/$date root@164.41.86.17:$BKP_DIR
+
+#Apaga os backups com mais de 7 dias
+cd $BKP_DIR
+for i in `find $BKP_DIR/ -maxdepth 1 -type d -mtime +6 -print`; do rm -rf $i; done
+
+echo "Local do backup: " $BKP_DIR/$date
+\end{lstlisting}
+
+\textcolor{red}{{\scriptsize Obs: Atenção para a linha  BKP\_DIR=<local do backup>, deve ser especificada a pasta onde o backup será realizado.}}
+
+\end{enumerate}
+
+\section{Agendamento do backup para ser realizado todos os dias às 00h30}
+
+\begin{enumerate}[label=\alph*)]
+
+\item Logue como root
+\begin{lstlisting}
+$ sudo su
+\end{lstlisting}
+
+\item Edite o agendador de tarefas cron
+\begin{lstlisting}
+# crontab -e
+\end{lstlisting}
+
+\item Adicione ao final do arquivo, a linha abaixo
+\begin{lstlisting}
+	30 0 * * * sh /usr/bin/noosfero-backup.sh
+\end{lstlisting}
+
+\item Saia do modo super usuário
+\begin{lstlisting}
+# exit
+\end{lstlisting}
+
+\item Caso a pasta especificada para o backup não exista, crie uma pasta
+\begin{lstlisting}[style=base]
+$ sudo mkdir -p |<pasta local para backup>|
+\end{lstlisting}
+
+\textcolor{red}{{\scriptsize Obs: substitua <pasta local para backup> pela pasta de backup de sua preferência, removendo os: <> }}
+
+\end{enumerate}
+
+\section{Realizando backup em uma máquina remota}
+
+Os seguintes passos devem ser executados na máquina que esteja executando o Noosfero:
+
+\begin{enumerate}[label=\alph*)]
+
+\item Gere a chave ssh
+\begin{lstlisting}
+$ ssh-keygen -t dsa
+\end{lstlisting}
+
+\item Copie a chave pública gerada para a pasta \emph{Home}
+\begin{lstlisting}
+$ cp .ssh/id_dsa.pub .
+\end{lstlisting}
+
+\item Envie a chave ssh para a máquina que irá armazenar os backups
+\begin{lstlisting}[style=base]
+$ scp id_dsa.pub |<usuario da maquina destino>|@|<Ip da maquina destino>|:
+\end{lstlisting}
+
+Os seguintes passos devem ser executados na máquina que armazenará os backups:
+
+\item Acesse a máquina remotamente através do comando
+\begin{lstlisting}[style=base]
+$ ssh |<usuario da maquina de destino>|@|<Ip da maquina de destino>|
+\end{lstlisting}
+
+\item Coloque a chave pública na lista de chaves autorizadas para que seja possível logar sem a necessidade de senha
+\begin{lstlisting}
+$ cat id_dsa.pub >> .ssh/authorized_keys
+\end{lstlisting}
+
+\item Crie o diretório onde o backup será realizado
+\begin{lstlisting}[style=base]
+mkdir -p |<diretorio do backup>|
+\end{lstlisting}
+
+\item Abra o arquivo “noosfero-backup.sh” com o editor de texto Vim
+\begin{lstlisting}
+$ sudo vim /usr/bin/noosfero-backup.sh
+\end{lstlisting}
+
+\item Adicione as linhas abaixo no script para apagar os backups antigos
+\begin{lstlisting}
+#!/bin/bash
+BKP_DIR=/var/backups/portal
+
+#Apaga os backups com mais de 7 dias
+cd $BKP_DIR
+for i in `find $BKP_DIR/ -maxdepth 1 -type d -mtime +3 -print`; do rm -rf $i; done
+\end{lstlisting}
+\item Agende o script de backup para executar todos os dias às 06:30 evitando a exclusão de algum backup
+
+\begin{itemize}
+
+\item Logue como root
+\begin{lstlisting}
+$ sudo su
+\end{lstlisting}
+
+\item Edite o agendador de tarefas cron
+\begin{lstlisting}
+# crontab -e
+\end{lstlisting}
+
+\item Adicione ao final do arquivo o agendamento
+\begin{lstlisting}
+# 30 6 * * * sh /usr/bin/noosfero-backup.sh
+\end{lstlisting}
+
+\item Sair do modo super usuário
+\begin{lstlisting}
+# exit
+\end{lstlisting}
+\end{itemize}
+\end{enumerate}
+
+\section{Instalação do Varnish}
+
+\begin{enumerate}[label=\alph*)]
+\item Instale o vanish
+\begin{lstlisting}
+$ apt-get install varnish
+\end{lstlisting}
+
+\item Instale o módulo apache RPAF
+\begin{lstlisting}
+$ sudo apt-get install libapache2-mod-rpaf
+\end{lstlisting}
+\end{enumerate}
+
+\section{Configurando o APACHE para ouvir a porta 8080 ao invés da porta 80}
+\begin{enumerate}[label=\alph*)]
+
+\item Abra o arquivo de configuração de portas do apache
+\begin{lstlisting}
+$ sudo vim /etc/apache2/ports.conf
+\end{lstlisting}
+
+\item Altere as seguintes linhas do arquivo
+\begin{lstlisting}
+NameVirtualHost *:80  para  NameVirtualHost *:8080
+Listen 80  para  Listen 127.0.0.1:8080
+\end{lstlisting}
+
+\item Abra o arquivo sites-enabled do apache
+\begin{lstlisting}
+$ sudo vim /etc/apache2/sites-enabled/*
+\end{lstlisting}
+
+\item Altere a seguinte linha do arquivo
+\begin{lstlisting}
+<VirtualHost *:80>  para  <VirtualHost *:8080>
+\end{lstlisting}
+
+\item Reinicie o Apache
+\begin{lstlisting}
+$ sudo service apache2 restart
+\end{lstlisting}
+
+\end{enumerate}
+
+\section{Configuração do Varnish}
+
+\begin{enumerate}[label=\alph*)]
+\item Abra o arquivo de configuração do varnish
+\begin{lstlisting}
+$ sudo vim /etc/default/varnish
+\end{lstlisting}
+
+\item Altere as seguintes linhas
+\begin{lstlisting}
+START=no  para  say START=yes
+-a :6081  para  -a :80
+\end{lstlisting}
+
+\item Abra o arquivo dafault.vcl do Varnish
+\begin{lstlisting}
+$ sudo /etc/varnish/default.vcl
+\end{lstlisting}
+
+\item Inclua as seguintes linhas no final do arquivos na mesma ordem
+\begin{lstlisting}
+include "/etc/noosfero/varnish-noosfero.vcl";
+include "/etc/noosfero/varnish-accept-language.vcl";
+\end{lstlisting}
+
+\item Reinicie o Varnish
+\begin{lstlisting}
+$ sudo service varnish restart
+\end{lstlisting}
+
+\end{enumerate}
+\section{Ativação do log do Varnish}
+
+\begin{enumerate}[label=\alph*)]
+\item Abra o arquivo “varnishncsa”
+\begin{lstlisting}
+$ sudo vim /etc/default/varnishncsa
+\end{lstlisting}
+
+\item Descomente a seguinte linha
+\begin{lstlisting}
+VARNISHNCSA_ENABLED=1
+\end{lstlisting}
+
+\textcolor{red}{{\scriptsize Obs: O log do varnish será gravado em \emph{/var/log/varnish/varnishncsa.log}}}
+
+\item Reinicie o varnish para que as mudanças tenham efeito:
+\begin{lstlisting}
+$ sudo service varnish restart
+\end{lstlisting}
 \end{enumerate}
