@@ -1,0 +1,152 @@
+\lstset{language=sh, numbers=none, breaklines=true}
+\chapter{Instalação e configuração do Noosfero }
+
+O Vim é o editor de texto padrão que será utilizado nesse tutorial sempre que for necessário editar um arquivo. Caso deseje utilizar um outro editor de texto, substitua “vim” nos comandos desse tutorial pelo comando do editor de texto de sua preferência.
+
+Todos os comandos desse tutorial devem ser executados em um terminal. Os comandos são precedidos por:
+
+\begin{itemize}
+\item \textbf{\$}: quando deve ser executado como usuário comum;
+\item \textbf{\#}: quando deve ser executado como super-usuário(administrador, root).
+\end{itemize}
+
+\section{Instalação das dependências principais do Noosfero no Debian 7}
+
+\begin{enumerate}[label=\alph*)]
+
+\item Abra o arquivo sources do debian:
+\begin{lstlisting}
+$ sudo vim /etc/apt/sources.list
+\end{lstlisting}
+
+\item Adicione a seguinte linha ao final do arquivo:
+\begin{lstlisting}
+$ deb http://download.noosfero.org/debian/wheezy ./
+\end{lstlisting}
+
+\item Baixe a chave do repositório:
+\begin{lstlisting}[numbers=none, breaklines=true]
+$ wget -O - http://download.noosfero.org/debian/signing-key.asc | sudo apt-key add -
+\end{lstlisting}
+
+\item Atualize a lista de pacotes do debian:
+\begin{lstlisting}
+$ sudo apt-get update
+\end{lstlisting}
+
+\item Instale o postgresql:
+\begin{lstlisting}
+$ sudo apt-get install postgresql
+\end{lstlisting}
+
+\item Instale o noosfero:
+\begin{lstlisting}
+$ sudo apt-get install noosfero noosfero-apache
+\end{lstlisting}
+
+\end{enumerate}
+
+\section{Instalação do PostFix e SASL}
+
+\begin{enumerate}[label=\alph*)]
+
+\item Instale o Postfix e SASL
+\begin{lstlisting}
+$ sudo aptitude install postfix libsasl2 ca-certificates libsasl2-modules
+\end{lstlisting}
+
+\item Realize a copia do certificado para pasta do PostFix
+\begin{lstlisting}
+$ cat /etc/ssl/certs/Thawte_Premium_Server_CA.pem | sudo tee -a /etc/postfix/cacert.pem
+\end{lstlisting}
+
+\item Abra o arquivo main.cf para habilitar o SASL com o editor de texto Vim
+\begin{lstlisting}
+$ sudo vim /etc/postfiz/main.cf
+\end{lstlisting}
+
+\item Procure a linha 'mydestination' e adicione o domínio do site a ser hospedado
+\begin{lstlisting}
+mydestination = <exemplo-dominio.com.br>
+\end{lstlisting}
+
+\textcolor{red}{{\scriptsize  Obs: Subtitua <exemplo-dominio.com.br> removendo <> }}
+\textcolor{red}{{\scriptsize  As informações já contidas devem ser mantidas, deve-se apenas acrescentar a URL desejada separada por vírgula. }}
+
+\item Adicione as seguintes linhas de configuração no final do arquivo:
+
+\begin{lstlisting}
+relayhost = [smtp.gmail.com]:587
+smtp_use_tls = yes
+smtp_sasl_auth_enable = yes
+smtp_sasl_password_maps = hash:/etc/postfix/sasl/sasl_
+smtp_sasl_security_options = noanonymous
+smtp_sasl_tls_security_options = noanonymous
+smtp_tls_CAfile = /etc/postfix/cacert.pem
+virtual_alias_maps = hash:/etc/postfix/virtual
+\end{lstlisting}
+
+\textcolor{red}{{\scriptsize Obs: O tutorial está especificado para o gmail, se estiver utilizando e-mail de outro domínio verifique suas configurações (SMTP e porta) e altere a linha relayhost.}}
+
+\textcolor{red}{{\scriptsize Para realizar os próximos passos deste tutorial é necessário que já esteja disponível o e-mail e senha da organização que utilizará a 	plataforma noosfero. Este será o mecanismo de comunicação entre os usuários da plataforma e o administrador. }}
+
+\item Crie a pasta SASL para armazenar o email e senha do e-mail
+\begin{lstlisting}
+$ sudo mkdir /etc/postfix/sasl
+\end{lstlisting}
+
+\item Crie o arquivo onde ficará armazenado o email e senha do email
+\begin{lstlisting}
+$ sudo touch /etc/postfix/sasl/sasl_passwd
+\end{lstlisting}
+
+\item Abra o arquivo com editor de texto Vim
+\begin{lstlisting}
+$ sudo vim /etc/postfix/sasl/sasl_passwd
+\end{lstlisting}
+
+\item Adicione email e senha no arquivo
+\begin{lstlisting}
+	[smtp.gmail.com]:587 <email da instituicao>:<senha de acesso ao email>
+\end{lstlisting}
+\textcolor{red}{{\scriptsize Obs: substitua <email da instituição> e <senha de acesso ao email> removendo os: <> }}
+
+\textcolor{red}{{\scriptsize O tutorial está especificado para o gmail, se estiver utilizando e-mail de outro domínio verifique suas configurações (SMTP e porta) e modifique a linha acima conforme as especificações. }}
+
+\item Dê permissão apenas de leitura para o arquivo
+\begin{lstlisting}
+$ sudo chmod 400 /etc/postfix/sasl/sasl_passwd
+\end{lstlisting}
+
+\item Coloque o arquivo na base de dados do PostFix
+\begin{lstlisting}
+$ sudo postmap /etc/postfix/sasl/sasl_passwd
+\end{lstlisting}
+
+\item Abra o arquivo \emph{virtual} utilizando editor de texto Vim
+\begin{lstlisting}
+$ sudo vim /etc/postfix/virtual
+\end{lstlisting}
+
+\item Ao final do arquivo adicione as seguintes linhas de configuração
+\begin{lstlisting}
+@<dominio da maquina>		<email da organizacao>
+\end{lstlisting}
+\textcolor{red}{{\scriptsize Obs: substitua <domínio da máquina> e <email da organização> removendo os: <> }}
+
+\item Dê permissão de leitura para o arquivo
+\begin{lstlisting}
+$ sudo chmod 400 /etc/postfix/virtual
+\end{lstlisting}
+
+\item Coloque o arquivo na base de dados do PostFix
+\begin{lstlisting}
+$ sudo postmap /etc/postfix/virtual
+\end{lstlisting}
+
+\item Reinicie o PostFix para habilitar as alterações
+\begin{lstlisting}
+$ sudo service postfix restart
+\end{lstlisting}
+
+\end{enumerate}
