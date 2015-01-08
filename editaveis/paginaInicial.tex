@@ -34,6 +34,7 @@ Os itens e sub-itens do menu possuem a mesma estrutura:
 \begin{minted}[
   frame=single
 ]{erb}
+ asd
 <%= link_to 'Nome do item/subitem', "/endereco-da-pagina" %>
 \end{minted}
 
@@ -149,14 +150,10 @@ O endereço do item/subitem tem o seguinte padrão
 \caption {Padrão de Endereços}
 \end{table}
 
-\section{Menu lateral}
-
-\section{Destacando artigo}
-
 \section{Rodapé}
 
 \begin{lstlisting}
-$ /usr/share/noosfero
+$ /usr/share/noosfero\label{sec:greetings}
 \end{lstlisting}
 
 Assim como o menu superior na seção \ref{menuSuperior}, o rodapé da página também deve ser alterado no arquivo de código fonte. Para isso acesse o arquivo \textbf{\textit{noosfero/public/designs/themes/portalCpd/footer.html.erb}}
@@ -191,3 +188,14 @@ Para adicionar informações gerais referentes ao portal deve ser alterado o con
      \caption{Informações gerais.}
      \label{fig:infGeral}
 \end{figure}
+
+\section{Menu lateral}
+
+\begin{figure}[h]
+     \centering
+       \includegraphics[keepaspectratio=true,scale=0.49]{figuras/linkAdmin.eps}
+     \caption{Link para a Administração do site.}
+     \label{fig:linkAdmin}
+\end{figure}
+
+\section{Destacando artigo}
