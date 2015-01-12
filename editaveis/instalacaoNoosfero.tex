@@ -15,7 +15,7 @@ Todos os comandos desse tutorial devem ser executados em um terminal. Os comando
 \item \textbf{\#}: quando deve ser executado como super-usuário(administrador, root).
 \end{itemize}
 
-\section{Instalação das dependências principais do Noosfero no Debian 7}
+\section{Instalando as dependências principais do Noosfero}
 
 \begin{enumerate}[label=\alph*)]
 
@@ -51,7 +51,7 @@ $ sudo apt-get install noosfero noosfero-apache
 
 \end{enumerate}
 
-\section{Instalação do PostFix e SASL}
+\section{Instalando o PostFix e SASL}
 
 \begin{enumerate}[label=\alph*)]
 
@@ -156,7 +156,7 @@ $ sudo service postfix restart
 
 \end{enumerate}
 
-\section{Configuração do backup do banco de dados}
+\section{Configurando o backup do banco de dados}
 
 \begin{enumerate}[label=\alph*)]
 
@@ -196,7 +196,7 @@ echo "Local do backup: " $BKP_DIR/$date
 
 \end{enumerate}
 
-\section{Agendamento do backup para ser realizado todos os dias às 00h30}
+\section{Agendando o backup para ser realizado todos os dias}
 
 \begin{enumerate}[label=\alph*)]
 
@@ -307,7 +307,7 @@ $ sudo su
 \end{itemize}
 \end{enumerate}
 
-\section{Instalação do Varnish}
+\section{Instalando o Varnish}
 
 \begin{enumerate}[label=\alph*)]
 \item Instale o vanish
@@ -321,7 +321,7 @@ $ sudo apt-get install libapache2-mod-rpaf
 \end{lstlisting}
 \end{enumerate}
 
-\section{Configurando o APACHE para ouvir a porta 8080 ao invés da porta 80}
+\section{Configurando o Apache para ouvir a porta 8080}
 \begin{enumerate}[label=\alph*)]
 
 \item Abra o arquivo de configuração de portas do apache
@@ -352,7 +352,7 @@ $ sudo service apache2 restart
 
 \end{enumerate}
 
-\section{Configuração do Varnish}
+\section{Configurando o Varnish}
 
 \begin{enumerate}[label=\alph*)]
 \item Abra o arquivo de configuração do varnish
@@ -383,7 +383,7 @@ $ sudo service varnish restart
 \end{lstlisting}
 
 \end{enumerate}
-\section{Ativação do log do Varnish}
+\section{Ativando o log do Varnish}
 
 \begin{enumerate}[label=\alph*)]
 \item Abra o arquivo “varnishncsa”
